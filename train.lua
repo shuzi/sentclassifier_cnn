@@ -97,6 +97,14 @@ else
    error('unknown optimization method')
 end
 
+function saveModel(s)
+   torch.save(opt.outputprefix .. string.format("_%010.2f_model", s), parameters)
+end
+
+function loadModel(m)
+   parameters:copy(torch.load(m))
+end
+
 function train()
     epoch = epoch or 1
     local time = sys.clock()

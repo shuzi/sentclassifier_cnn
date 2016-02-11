@@ -33,6 +33,7 @@ cmd:option('-gradClip', 0.5, 'gradient clamp')
 cmd:option('-gpuID', 1, 'GPU ID')
 cmd:option('-outputprefix', 'none', 'output file prefix')
 cmd:option('-prevtime', 0, 'time start point')
+cmd:option('-loadmodel', 'none', 'load model file name')
 cmd:text()
 opt = cmd:parse(arg or {})
 print(opt)
@@ -86,16 +87,11 @@ collectgarbage()
 collectgarbage()
 
 sys.tic()
-epoch = 1
 validState = {}
 testState = {}
-while epoch <= opt.epoch do
-   train()
-   test(validDataTensor, validDataTensor_y, validState)
-   test(testDataTensor, testDataTensor_y, testState)
-   if opt.outputprefix ~= 'none' then
-      saveModel(sys.toc() + opt.prevtime)
-   end
-   epoch = epoch + 1
-end
+
+loadModel(opt.loadmodel)
+test(validDataTensor, validDataTensor_y, validState)
+test(testDataTensor, testDataTensor_y, testState)
+
 

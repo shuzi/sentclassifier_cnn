@@ -165,7 +165,7 @@ for line in io.lines(opt.trainFile) do
           trainDataTensor[ln][r] = mapWordStr2WordIdx['SENTEND']
     end
 end
-if ln < trainDataTensor:size()[1] then
+while ln < trainDataTensor:size()[1] do
     local i = math.random(1,ln)
     ln = ln + 1
     trainDataTensor_y[ln] = trainDataTensor_y[i]
