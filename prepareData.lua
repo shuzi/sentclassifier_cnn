@@ -1,7 +1,7 @@
 
 require 'torch'
 require 'nn'
-
+local stringx = require 'pl.stringx'
 
 init_voc = {}
 train_size = 0
@@ -48,6 +48,10 @@ local train_cutoff = math.floor(2 * torch.std(torch.Tensor(train_len)) + torch.m
 if train_cutoff > opt.trainMaxLength then
    train_cutoff = opt.trainMaxLength
 end
+if train_cutoff < opt.trainMinLength then
+   train_cutoff = opt.trainMinLength
+end
+
 print(string.format("%s  %f", "Training data length cutoff: ", train_cutoff))
 
 print(string.format("%s  %f", "Valid data length standard deviation: ", torch.std(torch.Tensor(valid_len)) ))
@@ -56,6 +60,10 @@ local valid_cutoff = math.floor(3 * torch.std(torch.Tensor(valid_len)) + torch.m
 if valid_cutoff > opt.testMaxLength then
    valid_cutoff = opt.testMaxLength
 end
+if valid_cutoff < opt.testMinLength then
+   valid_cutoff = opt.testMinLength
+end
+
 print(string.format("%s  %f", "Valid data length cutoff: ", valid_cutoff))
 
 --[[
@@ -71,7 +79,6 @@ print(string.format("%s  %f", "Final length cutoff: ", cutoff))
 local trainDataTensor_ydim = train_cutoff + opt.contConvWidth + opt.contConvWidth - 1
 local validDataTensor_ydim = valid_cutoff + opt.contConvWidth + opt.contConvWidth - 1
 local testDataTensor_ydim = valid_cutoff + opt.contConvWidth + opt.contConvWidth - 1
---trainDataTensor_ydim,validDataTensor_ydim,testDataTensor_ydim = 30,30,30
 trainDataTensor = torch.Tensor(math.ceil(train_size/opt.batchSize)*opt.batchSize, trainDataTensor_ydim)
 trainDataTensor_y = torch.Tensor(math.ceil(train_size/opt.batchSize)*opt.batchSize)
 validDataTensor = torch.Tensor(valid_size, validDataTensor_ydim)

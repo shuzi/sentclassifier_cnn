@@ -1,4 +1,23 @@
 #!/opt/share/torch-7.0/bin/th
+require 'torch'
+--require 'socket'
+arg={}
+io.write("HI WEI!!!")
+function prepResult(str_len)
+   local res = {}
+   cnt = 0;
+   for i = 1, 300 do
+      if cnt >= 300 then
+	break
+      end
+      res[i]=str_len
+      if i == 1 then
+	 --print("[Lua]: str_len", res[#res])
+      end
+      cnt = cnt + 1
+   end
+   return res
+end
 
 cmd = torch.CmdLine('_')
 cmd:text()
@@ -33,13 +52,22 @@ cmd:option('-gradClip', 0.5, 'gradient clamp')
 cmd:option('-gpuID', 1, 'GPU ID')
 cmd:option('-outputprefix', 'none', 'output file prefix')
 cmd:option('-prevtime', 0, 'time start point')
-cmd:option('-loadmodel', 'none', 'load model file name')
+--cmd:option('-loadmodel', 'none', 'load model file name')
+cmd:option('-loadmodel', 'model_0000026.01_model', 'load model file name')
 cmd:text()
 opt = cmd:parse(arg or {})
 print(opt)
 --opt.rundir = cmd:string('experiment', opt, {dir=true})
 --paths.mkdir(opt.rundir)
 --cmd:log(opt.rundir .. '/log', params)
+
+-- Beginning of getting weiarg 
+-- print "Wei args beginning"
+-- for i =1, table.getn(weiarg) do
+--    print (i, weiarg[i])
+-- end
+-- print "Wei args ending"
+-- End of getting weiarg
 
 if opt.type == 'float' then
    print('==> switching to floats')
@@ -89,9 +117,31 @@ collectgarbage()
 sys.tic()
 validState = {}
 testState = {}
-
+--t1 = socket.gettime()*1000;
 loadModel(opt.loadmodel)
-test(validDataTensor, validDataTensor_y, validState)
-test(testDataTensor, testDataTensor_y, testState)
+--print ("loading time (milli-sec)", socket.gettime()*1000 - t1);
+--test(validDataTensor, validDataTensor_y, validState)
+--test(testDataTensor, testDataTensor_y, testState)
+--print("About to yield ... \n");
+--arg={}
+counter=0
 
+function mycoroutine() -- wrap a coroutine so that it can be yielded more convinietnly
+while (1)
+do
+   counter = counter + 1
+   --local sum = -5
+   local str_len = -1
+   for i=1,table.getn(arg) do
+      --print(i,arg[i])
+      str_len = string.len(arg[i])
+      --print("[Lua] args from c:", i, arg[i])
+   end
+   --print("hi from Wei")
+   --return 100,234,456,678
+   --print("about to yield ");
+   --test(testDataTensor, testDataTensor_y, testState)
+   coroutine.yield(unpack(prepResult(str_len)));
+end
+end
 

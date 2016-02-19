@@ -27,8 +27,10 @@ cmd:option('-numLabels', 311, 'label quantity')
 cmd:option('-epoch', 200, 'maximum epoch')
 cmd:option('-L1reg', 0, 'L1 regularization coefficient')
 cmd:option('-L2reg', 1e-4, 'L2 regularization coefficient')
-cmd:option('-trainMaxLength', 100, 'maximum length for training')
-cmd:option('-testMaxLength', 100, 'maximum length for valid/test')
+cmd:option('-trainMaxLength', 150, 'maximum length for training')
+cmd:option('-testMaxLength', 150, 'maximum length for valid/test')
+cmd:option('-trainMinLength', 40, 'maximum length for training')
+cmd:option('-testMinLength', 40, 'maximum length for valid/test')
 cmd:option('-gradClip', 0.5, 'gradient clamp')
 cmd:option('-gpuID', 1, 'GPU ID')
 cmd:option('-outputprefix', 'none', 'output file prefix')
@@ -85,6 +87,8 @@ dofile 'train.lua'
 collectgarbage()
 collectgarbage()
 
+
+
 sys.tic()
 epoch = 1
 validState = {}
@@ -94,7 +98,14 @@ while epoch <= opt.epoch do
    test(validDataTensor, validDataTensor_y, validState)
    test(testDataTensor, testDataTensor_y, testState)
    if opt.outputprefix ~= 'none' then
-      saveModel(sys.toc() + opt.prevtime)
+      local t = sys.toc()
+      saveModel(t + opt.prevtime)
+      local obj = {
+         em = model:get(1).weight,
+         s2i = mapWordStr2WordIdx,
+         i2s = mapWordIdx2WordStr
+      }
+      torch.save(opt.outputprefix .. string.format("_%010.2f_embedding", t + opt.prevtime), obj)
    end
    epoch = epoch + 1
 end

@@ -56,8 +56,6 @@ if opt.type == 'cuda' then
 end
 if model then
    parameters,gradParameters = model:getParameters()
---   parameters = parameters:contiguous()
---   gradParameters = gradParameters:contiguous()
    parametersClone = parameters:clone()
 end
 print(model)
@@ -104,6 +102,32 @@ end
 function loadModel(m)
    parameters:copy(torch.load(m))
 end
+
+function cleanMemForRuntime()
+   parametersClone = nil
+   gradParameters = nil
+   model_test:get(1).gradWeight = nil 
+   model:get(1).gradWeight = nil
+   model_test:get(3).gradWeight = nil 
+   model:get(3).gradWeight = nil 
+   model_test:get(3).gradBias = nil 
+   model:get(3).gradBias = nil
+   model_test:get(6).gradWeight = nil 
+   model:get(6).gradWeight = nil
+   model_test:get(6).gradBias = nil
+   model:get(6).gradBias = nil
+   model_test:get(9).gradWeight = nil 
+   model:get(9).gradWeight = nil
+   model_test:get(9).gradBias = nil
+   model:get(9).gradBias = nil
+   model_test:get(11).gradWeight = nil 
+   model:get(11).gradWeight = nil
+   model_test:get(11).gradBias = nil
+   model:get(11).gradBias = nil
+   collectgarbage()
+   collectgarbage()
+end
+
 
 function train()
     epoch = epoch or 1
