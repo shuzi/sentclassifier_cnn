@@ -1,5 +1,9 @@
 #!/opt/share/torch-7.0/bin/th
 
+fbok,_ = pcall(require, 'fbcunn')
+if fbok then
+   require 'fbcunn'
+end
 cmd = torch.CmdLine('_')
 cmd:text()
 cmd:text('Options:')
@@ -35,12 +39,22 @@ cmd:option('-gradClip', 0.5, 'gradient clamp')
 cmd:option('-gpuID', 1, 'GPU ID')
 cmd:option('-outputprefix', 'none', 'output file prefix')
 cmd:option('-prevtime', 0, 'time start point')
+cmd:option('-usefbcunn', false, 'use fbcunn')
 cmd:text()
 opt = cmd:parse(arg or {})
 print(opt)
 --opt.rundir = cmd:string('experiment', opt, {dir=true})
 --paths.mkdir(opt.rundir)
 --cmd:log(opt.rundir .. '/log', params)
+
+if opt.usefbcunn == false then
+  fbok = false
+elseif opt.usefbcunn == true and fbok == true then
+  fbok = true
+else
+  fbok = false
+end
+
 
 if opt.type == 'float' then
    print('==> switching to floats')

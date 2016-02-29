@@ -1,10 +1,18 @@
 model = nn.Sequential()
-model:add(nn.LookupTable(mapWordIdx2Vector:size()[1], opt.embeddingDim))
+if fbok then 
+   model:add(nn.LookupTableGPU(mapWordIdx2Vector:size()[1], opt.embeddingDim))
+else
+   model:add(nn.LookupTable(mapWordIdx2Vector:size()[1], opt.embeddingDim))
+end
 model:add(nn.View(opt.batchSize*trainDataTensor:size()[2], opt.embeddingDim))
 model:add(nn.Linear(opt.embeddingDim, opt.wordHiddenDim))
 model:add(nn.View(opt.batchSize, trainDataTensor:size()[2], opt.wordHiddenDim))
 model:add(nn.Tanh())
-model:add(nn.TemporalConvolution(opt.wordHiddenDim, opt.numFilters, opt.contConvWidth))
+if fbok then
+   model:add(nn.TemporalConvolutionFB(opt.wordHiddenDim, opt.numFilters, opt.contConvWidth))
+else
+   model:add(nn.TemporalConvolution(opt.wordHiddenDim, opt.numFilters, opt.contConvWidth))
+end
 model:add(nn.Max(2))
 model:add(nn.Tanh())
 model:add(nn.Linear(opt.numFilters, opt.hiddenDim))
@@ -16,12 +24,20 @@ criterion = nn.ClassNLLCriterion()
 model:get(1).weight:copy(mapWordIdx2Vector)
 
 model_test = nn.Sequential()
-model_test:add(nn.LookupTable(mapWordIdx2Vector:size()[1], opt.embeddingDim))
+if fbok then
+   model_test:add(nn.LookupTableGPU(mapWordIdx2Vector:size()[1], opt.embeddingDim))
+else
+   model_test:add(nn.LookupTable(mapWordIdx2Vector:size()[1], opt.embeddingDim))
+end
 model_test:add(nn.View(opt.batchSizeTest*validDataTensor:size()[2], opt.embeddingDim))
 model_test:add(nn.Linear(opt.embeddingDim, opt.wordHiddenDim))
 model_test:add(nn.View(opt.batchSizeTest, validDataTensor:size()[2], opt.wordHiddenDim))
 model_test:add(nn.Tanh())
-model_test:add(nn.TemporalConvolution(opt.wordHiddenDim, opt.numFilters, opt.contConvWidth))
+if fbok then
+   model_test:add(nn.TemporalConvolutionFB(opt.wordHiddenDim, opt.numFilters, opt.contConvWidth))
+else
+   model_test:add(nn.TemporalConvolution(opt.wordHiddenDim, opt.numFilters, opt.contConvWidth))
+end
 model_test:add(nn.Max(2))
 model_test:add(nn.Tanh())
 model_test:add(nn.Linear(opt.numFilters, opt.hiddenDim))
