@@ -8,7 +8,9 @@ model:add(nn.View(opt.batchSize*trainDataTensor:size()[2], opt.embeddingDim))
 model:add(nn.Linear(opt.embeddingDim, opt.wordHiddenDim))
 model:add(nn.View(opt.batchSize, trainDataTensor:size()[2], opt.wordHiddenDim))
 model:add(nn.Tanh())
-if fbok then
+if cudnnok then
+   model:add(cudnn.TemporalConvolution(opt.wordHiddenDim, opt.numFilters, opt.contConvWidth))
+elseif fbok then
    model:add(nn.TemporalConvolutionFB(opt.wordHiddenDim, opt.numFilters, opt.contConvWidth))
 else
    model:add(nn.TemporalConvolution(opt.wordHiddenDim, opt.numFilters, opt.contConvWidth))
@@ -20,7 +22,7 @@ model:add(nn.Tanh())
 model:add(nn.Linear(opt.hiddenDim, opt.numLabels))
 model:add(nn.LogSoftMax())
 criterion = nn.ClassNLLCriterion()
-
+--cudnn.convert(model, cudnn)
 model:get(1).weight:copy(mapWordIdx2Vector)
 
 model_test = nn.Sequential()
@@ -33,7 +35,9 @@ model_test:add(nn.View(opt.batchSizeTest*validDataTensor:size()[2], opt.embeddin
 model_test:add(nn.Linear(opt.embeddingDim, opt.wordHiddenDim))
 model_test:add(nn.View(opt.batchSizeTest, validDataTensor:size()[2], opt.wordHiddenDim))
 model_test:add(nn.Tanh())
-if fbok then
+if cudnnok then
+   model_test:add(cudnn.TemporalConvolution(opt.wordHiddenDim, opt.numFilters, opt.contConvWidth))
+elseif fbok then
    model_test:add(nn.TemporalConvolutionFB(opt.wordHiddenDim, opt.numFilters, opt.contConvWidth))
 else
    model_test:add(nn.TemporalConvolution(opt.wordHiddenDim, opt.numFilters, opt.contConvWidth))
@@ -72,6 +76,7 @@ if opt.type == 'cuda' then
 end
 if model then
    parameters,gradParameters = model:getParameters()
+   print("Model Size: ", parameters:size()[1])
    parametersClone = parameters:clone()
 end
 print(model)

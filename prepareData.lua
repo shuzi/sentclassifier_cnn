@@ -250,10 +250,6 @@ for line in io.lines(opt.testFile) do
 end
 
 
-
-
-
-
 print(string.format('training data size: %s x %s', trainDataTensor:size()[1], trainDataTensor:size()[2]))
 print(string.format('valid data size: %s x %s', validDataTensor:size()[1], validDataTensor:size()[2]))
 print(string.format('test data size: %s x %s', testDataTensor:size()[1], testDataTensor:size()[2]))
@@ -264,4 +260,6 @@ assert(trainFileHandle:close())
 assert(validFileHandle:close())
 assert(testFileHandle:close())
 assert(embeddingFileHandle:close())
-
+collectgarbage()
+collectgarbage()
+print("At the end of prepareData, amount of memory currently used in Kilobytes:  ", collectgarbage("count"))

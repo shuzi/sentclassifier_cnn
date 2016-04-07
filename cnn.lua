@@ -4,6 +4,13 @@ fbok,_ = pcall(require, 'fbcunn')
 if fbok then
    require 'fbcunn'
 end
+cudnnok,_ = pcall(require, 'cudnn')
+if cudnnok then
+   require 'cudnn'
+   cudnn.fastest = true
+   cudnn.benchmark = true
+end
+
 cmd = torch.CmdLine('_')
 cmd:text()
 cmd:text('Options:')
@@ -40,6 +47,7 @@ cmd:option('-gpuID', 1, 'GPU ID')
 cmd:option('-outputprefix', 'none', 'output file prefix')
 cmd:option('-prevtime', 0, 'time start point')
 cmd:option('-usefbcunn', false, 'use fbcunn')
+cmd:option('-usecudnn', false, 'use cudnn')
 cmd:text()
 opt = cmd:parse(arg or {})
 print(opt)
@@ -54,6 +62,16 @@ elseif opt.usefbcunn == true and fbok == true then
 else
   fbok = false
 end
+
+
+if opt.usecudnn == false then
+  cudnnok = false
+elseif opt.usecudnn == true and cudnnok == true then
+  cudnnok = true
+else
+  cudnnok = false
+end
+
 
 
 if opt.type == 'float' then
