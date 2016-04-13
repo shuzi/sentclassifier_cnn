@@ -9,6 +9,7 @@ if cudnnok then
    require 'cudnn'
    cudnn.fastest = true
    cudnn.benchmark = true
+   cudnn.verbose = true
 end
 
 cmd = torch.CmdLine('_')
@@ -20,7 +21,7 @@ cmd:option('-optimization', 'SGD', 'optimization method: SGD | ASGD | CG | LBFGS
 cmd:option('-learningRate', 1e-2, 'learning rate at t=0')
 cmd:option('-batchSize', 1, 'mini-batch size (1 = pure stochastic)')
 cmd:option('-batchSizeTest', 1, 'mini-batch size (1 = pure stochastic)')
-cmd:option('-weightDecay', 0, 'weight decay (SGD only)')
+cmd:option('-learningRateDecay', 0, 'weight decay (SGD only)')
 cmd:option('-momentum', 0, 'momentum (SGD only)')
 cmd:option('-t0', 1, 'start averaging at t0 (ASGD only), in nb of epochs')
 cmd:option('-maxIter', 2, 'maximum nb of iterations for CG and LBFGS')
@@ -48,6 +49,7 @@ cmd:option('-outputprefix', 'none', 'output file prefix')
 cmd:option('-prevtime', 0, 'time start point')
 cmd:option('-usefbcunn', false, 'use fbcunn')
 cmd:option('-usecudnn', false, 'use cudnn')
+cmd:option('-nesterov', false, 'use nesterov')
 cmd:text()
 opt = cmd:parse(arg or {})
 print(opt)

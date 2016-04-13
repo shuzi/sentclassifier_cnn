@@ -99,9 +99,11 @@ elseif opt.optimization == 'LBFGS' then
 elseif opt.optimization == 'SGD' then
    optimState = {
       learningRate = opt.learningRate,
-      weightDecay = opt.weightDecay,
+      learningRateDecay = opt.learningRateDecay,
       momentum = opt.momentum,
-      learningRateDecay = 0
+      learningRateDecay = 0,
+      dampening = 0,
+      nesterov = opt.nesterov
    }
    optimMethod = optim.sgd
 
@@ -152,6 +154,9 @@ end
 
 function train()
     epoch = epoch or 1
+    if optimState.evalCounter then
+        optimState.evalCounter = optimState.evalCounter + 1
+    end
     local time = sys.clock()
     model:training()
     local batches = trainDataTensor:size()[1]/opt.batchSize
@@ -172,7 +177,7 @@ function train()
             f = criterion:forward(output, target)
             local df_do = criterion:backward(output, target)
             model:backward(input, df_do) 
-
+            --cutorch.synchronize()
             if opt.L1reg ~= 0 then
                local norm, sign = torch.norm, torch.sign
                f = f + opt.L1reg * norm(parameters,1)
