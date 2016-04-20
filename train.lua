@@ -157,6 +157,7 @@ function train()
     if optimState.evalCounter then
         optimState.evalCounter = optimState.evalCounter + 1
     end
+--    optimState.learningRate = opt.learningRate
     local time = sys.clock()
     model:training()
     local batches = trainDataTensor:size()[1]/opt.batchSize

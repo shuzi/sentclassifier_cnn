@@ -50,6 +50,7 @@ cmd:option('-prevtime', 0, 'time start point')
 cmd:option('-usefbcunn', false, 'use fbcunn')
 cmd:option('-usecudnn', false, 'use cudnn')
 cmd:option('-nesterov', false, 'use nesterov')
+cmd:option('-saveMode', 'last', 'last|every')
 cmd:text()
 opt = cmd:parse(arg or {})
 print(opt)
@@ -62,6 +63,7 @@ if opt.usefbcunn == false then
 elseif opt.usefbcunn == true and fbok == true then
   fbok = true
 else
+  print("Error: fbcunn is not available to use.")
   fbok = false
 end
 
@@ -71,6 +73,7 @@ if opt.usecudnn == false then
 elseif opt.usecudnn == true and cudnnok == true then
   cudnnok = true
 else
+  print("Error: cudnn is not available to use.")
   cudnnok = false
 end
 
@@ -122,7 +125,6 @@ collectgarbage()
 collectgarbage()
 
 
-
 sys.tic()
 epoch = 1
 validState = {}
@@ -132,14 +134,25 @@ while epoch <= opt.epoch do
    test(validDataTensor, validDataTensor_y, validState)
    test(testDataTensor, testDataTensor_y, testState)
    if opt.outputprefix ~= 'none' then
-      local t = sys.toc()
-      saveModel(t + opt.prevtime)
-      local obj = {
-         em = model:get(1).weight,
-         s2i = mapWordStr2WordIdx,
-         i2s = mapWordIdx2WordStr
-      }
-      torch.save(opt.outputprefix .. string.format("_%010.2f_embedding", t + opt.prevtime), obj)
+      if opt.saveMode == 'last' and epoch == opt.epoch then
+         local t = sys.toc()
+         saveModel(t + opt.prevtime)
+         local obj = {
+            em = model:get(1).weight,
+            s2i = mapWordStr2WordIdx,
+            i2s = mapWordIdx2WordStr
+         }
+         torch.save(opt.outputprefix .. string.format("_%010.2f_embedding", t + opt.prevtime), obj)
+      elseif opt.saveMode == 'every'  then
+         local t = sys.toc()
+         saveModel(t + opt.prevtime)
+         local obj = {
+            em = model:get(1).weight,
+            s2i = mapWordStr2WordIdx,
+            i2s = mapWordIdx2WordStr
+         }
+         torch.save(opt.outputprefix .. string.format("_%010.2f_embedding", t + opt.prevtime), obj)
+      end
    end
    epoch = epoch + 1
 end
