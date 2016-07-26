@@ -51,6 +51,10 @@ cmd:option('-usefbcunn', false, 'use fbcunn')
 cmd:option('-usecudnn', false, 'use cudnn')
 cmd:option('-nesterov', false, 'use nesterov')
 cmd:option('-saveMode', 'last', 'last|every')
+cmd:option('-valid', false, 'run valid')
+cmd:option('-test', false, 'run test')
+
+
 cmd:text()
 opt = cmd:parse(arg or {})
 print(opt)
@@ -131,8 +135,12 @@ validState = {}
 testState = {}
 while epoch <= opt.epoch do
    train()
-   test(validDataTensor, validDataTensor_y, validState)
-   test(testDataTensor, testDataTensor_y, testState)
+   if opt.valid then
+     test(validDataTensor, validDataTensor_y, validState)
+   end
+   if opt.test then
+     test(testDataTensor, testDataTensor_y, testState)
+   end
    if opt.outputprefix ~= 'none' then
       if opt.saveMode == 'last' and epoch == opt.epoch then
          local t = sys.toc()
